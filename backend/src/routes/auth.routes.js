@@ -39,6 +39,24 @@ router.post("/signup", async (req, res) => {
       password: hashedPassword,
     });
 
+    // Send welcome email (don't fail signup if email sending fails)
+    try {
+      await sendMail({
+        to: user.email,
+        subject: "Welcome to IIT Ropar Marketplace 🎉",
+        html: `
+          <h2>Welcome, ${user.fullName}!</h2>
+          <p>Your account has been created successfully.</p>
+          <p>You can now buy and sell items within the IIT Ropar community.</p>
+          <br/>
+          <p>Happy Trading!</p>
+          <p><b>IIT Ropar Marketplace Team</b></p>
+        `,
+      });
+    } catch (err) {
+      console.error("Welcome email failed:", err.message);
+    }
+
     const token = signToken(user._id.toString());
 
     res.status(201).json({
